@@ -118,149 +118,153 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.only(
             left: 20,
             right: 20,
-            bottom: 60,
+            bottom: 0,
             top: 10,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    "Welcome Back",
-                    color: Colors.black,
-                    size: 32,
-                    textAlign: TextAlign.center,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  CustomText(
-                    "Log in to your account ",
-                    color: Colors.black,
-                    size: 16,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  // 1. YOUR EMAIL FIELD
-                  CustomTextField(
-                    controller: _emailController,
-                    // ◄ CRITICAL UNCOMMENT: Captures email typing inputs!
-                    hideText: false,
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    suffixIconButton: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.edit),
-                      style: const ButtonStyle(),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomText(
+                      "Welcome Back",
+                      color: Colors.black,
+                      size: 32,
+                      textAlign: TextAlign.center,
+                      fontWeight: FontWeight.bold,
                     ),
-                    hint: 'Enter your Email',
-                  ),
-
-                  const SizedBox(height: 11),
-
-                  // 2. YOUR PASSWORD FIELD
-                  CustomTextField(
-                    controller: _passwordController,
-                    // ◄ CRITICAL UNCOMMENT: Captures password typing inputs!
-                    hideText: hideTextFieldText,
-                    prefixIcon: const Icon(Icons.key),
-                    suffixIconButton: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          hideTextFieldText = !hideTextFieldText;
-                        });
-                      },
-                      icon: Icon(
-                        hideTextFieldText
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
+                    CustomText(
+                      "Log in to your account ",
+                      color: Colors.black,
+                      size: 16,
+                      textAlign: TextAlign.center,
                     ),
-                    hint: 'Enter your password',
-                  ),
-
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // IMPLEMENTED INTERACTIVE CHECKBOX ROW SEGMENT
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _rememberMe,
-                            activeColor: ColorsUsed.electricBlue,
-                            onChanged: (bool? newValue) {
-                              setState(() {
-                                _rememberMe = newValue ?? false;
-                              });
-                            },
-                          ),
-                          CustomText('Remember me'),
-                        ],
+                  ],
+                ),
+                SizedBox(height: 50,),
+                Column(
+                  children: [
+                    // 1. YOUR EMAIL FIELD
+                    CustomTextField(
+                      controller: _emailController,
+                      // ◄ CRITICAL UNCOMMENT: Captures email typing inputs!
+                      hideText: false,
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      suffixIconButton: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.edit),
+                        style: const ButtonStyle(),
                       ),
-                      CustomTextButton(
-                        name: CustomText(
-                          'Forgot Password?',
-                          color: ColorsUsed.electricBlue,
-                          fontWeight: FontWeight.bold,
+                      hint: 'Enter your Email',
+                    ),
+
+                    const SizedBox(height: 11),
+
+                    // 2. YOUR PASSWORD FIELD
+                    CustomTextField(
+                      controller: _passwordController,
+                      // ◄ CRITICAL UNCOMMENT: Captures password typing inputs!
+                      hideText: hideTextFieldText,
+                      prefixIcon: const Icon(Icons.key),
+                      suffixIconButton: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            hideTextFieldText = !hideTextFieldText;
+                          });
+                        },
+                        icon: Icon(
+                          hideTextFieldText
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                         ),
-                        callback: () {},
                       ),
-                    ],
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomElevatedButton(
-                      bgColor: ColorsUsed.electricBlue,
-                      name: CustomText(
-                        'Log In',
-                        size: 20,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      callback:
-                          _executeLogin, // Binds your authentication logic directly to layout triggers!
+                      hint: 'Enter your password',
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        CustomText(
-                          "Don't have an account?",
-                          color: Colors.black,
+                        // IMPLEMENTED INTERACTIVE CHECKBOX ROW SEGMENT
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _rememberMe,
+                              activeColor: ColorsUsed.electricBlue,
+                              onChanged: (bool? newValue) {
+                                setState(() {
+                                  _rememberMe = newValue ?? false;
+                                });
+                              },
+                            ),
+                            CustomText('Remember me'),
+                          ],
                         ),
                         CustomTextButton(
                           name: CustomText(
-                            'Sin UP',
-                            // Matches your custom spelling target layout text string
-                            color: Colors.blue,
-                            size: 16,
+                            'Forgot Password?',
+                            color: ColorsUsed.electricBlue,
                             fontWeight: FontWeight.bold,
                           ),
-                          callback: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SignupScreen(),
-                              ),
-                            );
-                          },
+                          callback: () {},
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+                SizedBox(height: 20,),
+                Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: CustomElevatedButton(
+                        bgColor: ColorsUsed.electricBlue,
+                        name: CustomText(
+                          'Log In',
+                          size: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        callback:
+                            _executeLogin, // Binds your authentication logic directly to layout triggers!
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CustomText(
+                            "Don't have an account?",
+                            color: Colors.black,
+                          ),
+                          CustomTextButton(
+                            name: CustomText(
+                              'Sin UP',
+                              // Matches your custom spelling target layout text string
+                              color: Colors.blue,
+                              size: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            callback: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SignupScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

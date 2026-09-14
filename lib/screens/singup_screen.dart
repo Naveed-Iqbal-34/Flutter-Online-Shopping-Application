@@ -122,150 +122,152 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
 
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-
-            children: [
-              // =====================================
-              // TITLE
-              // =====================================
-              CustomText(
-                'Create Account',
-                color: Colors.black,
-                size: 30,
-                fontWeight: FontWeight.bold,
-              ),
-
-              CustomText(
-                'Create a new ShopEasy account',
-                color: Colors.black54,
-                size: 16,
-              ),
-
-              const SizedBox(height: 35),
-
-              // =====================================
-              // EMAIL
-              // =====================================
-              CustomTextField(
-                controller: _emailController,
-                hideText: false,
-                prefixIcon: const Icon(Icons.email_outlined),
-                hint: 'Enter your Email',
-                suffixIconButton: IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.edit),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+          
+              children: [
+                // =====================================
+                // TITLE
+                // =====================================
+                CustomText(
+                  'Create Account',
+                  color: Colors.black,
+                  size: 30,
+                  fontWeight: FontWeight.bold,
                 ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // =====================================
-              // PASSWORD
-              // =====================================
-              CustomTextField(
-                controller: _passwordController,
-                hideText: hidePassword,
-
-                prefixIcon: const Icon(Icons.key),
-
-                suffixIconButton: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      hidePassword = !hidePassword;
-                    });
-                  },
-
-                  icon: Icon(
-                    hidePassword
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
+          
+                CustomText(
+                  'Create a new ShopEasy account',
+                  color: Colors.black54,
+                  size: 16,
+                ),
+          
+                const SizedBox(height: 50),
+          
+                // =====================================
+                // EMAIL
+                // =====================================
+                CustomTextField(
+                  controller: _emailController,
+                  hideText: false,
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  hint: 'Enter your Email',
+                  suffixIconButton: IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.edit),
                   ),
                 ),
-
-                hint: 'Enter your Password',
-              ),
-
-              const SizedBox(height: 12),
-
-              // =====================================
-              // CONFIRM PASSWORD
-              // =====================================
-              CustomTextField(
-                controller: _confirmPasswordController,
-
-                hideText: hideConfirmPassword,
-
-                prefixIcon: const Icon(Icons.lock_outline),
-
-                suffixIconButton: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      hideConfirmPassword = !hideConfirmPassword;
-                    });
-                  },
-
-                  icon: Icon(
-                    hideConfirmPassword
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
+          
+                const SizedBox(height: 12),
+          
+                // =====================================
+                // PASSWORD
+                // =====================================
+                CustomTextField(
+                  controller: _passwordController,
+                  hideText: hidePassword,
+          
+                  prefixIcon: const Icon(Icons.key),
+          
+                  suffixIconButton: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        hidePassword = !hidePassword;
+                      });
+                    },
+          
+                    icon: Icon(
+                      hidePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
                   ),
+          
+                  hint: 'Enter your Password',
                 ),
-
-                hint: 'Confirm Password',
-              ),
-
-              const SizedBox(height: 30),
-
-              // =====================================
-              // SIGN UP BUTTON
-              // =====================================
-              SizedBox(
-                width: double.infinity,
-
-                child: CustomElevatedButton(
-                  bgColor: ColorsUsed.electricBlue,
-
-                  name: CustomText(
-                    'Sign Up',
-                    size: 20,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+          
+                const SizedBox(height: 12),
+          
+                // =====================================
+                // CONFIRM PASSWORD
+                // =====================================
+                CustomTextField(
+                  controller: _confirmPasswordController,
+          
+                  hideText: hideConfirmPassword,
+          
+                  prefixIcon: const Icon(Icons.lock_outline),
+          
+                  suffixIconButton: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        hideConfirmPassword = !hideConfirmPassword;
+                      });
+                    },
+          
+                    icon: Icon(
+                      hideConfirmPassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
                   ),
-
-                  callback: _signUp,
+          
+                  hint: 'Confirm Password',
                 ),
-              ),
-
-              const SizedBox(height: 15),
-
-              // =====================================
-              // LOGIN LINK
-              // =====================================
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-
-                children: [
-                  CustomText('Already have an account?', color: Colors.black),
-
-                  CustomTextButton(
+          
+                const SizedBox(height: 30),
+          
+                // =====================================
+                // SIGN UP BUTTON
+                // =====================================
+                SizedBox(
+                  width: double.infinity,
+          
+                  child: CustomElevatedButton(
+                    bgColor: ColorsUsed.electricBlue,
+          
                     name: CustomText(
-                      'Log In',
-                      color: Colors.blue,
-                      size: 16,
+                      'Sign Up',
+                      size: 20,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
-
-                    callback: () {
-                      Navigator.pop(context);
-                    },
+          
+                    callback: _signUp,
                   ),
-                ],
-              ),
-            ],
+                ),
+          
+                const SizedBox(height: 15),
+          
+                // =====================================
+                // LOGIN LINK
+                // =====================================
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+          
+                  children: [
+                    CustomText('Already have an account?', color: Colors.black),
+          
+                    CustomTextButton(
+                      name: CustomText(
+                        'Log In',
+                        color: Colors.blue,
+                        size: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+          
+                      callback: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
