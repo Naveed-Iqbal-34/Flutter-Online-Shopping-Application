@@ -1,3 +1,4 @@
+import 'package:database_in_flutter/widgets/app_pop_scope.dart';
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'category_screen.dart';
@@ -23,49 +24,52 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: screens[selectedIndex],
-
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: selectedIndex,
-
-          onTap: (index) {
-            setState(() {
-              selectedIndex = index;
-            });
-          },
-
-          type: BottomNavigationBarType.fixed,
-
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.black,
-
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-
-            BottomNavigationBarItem(
-              icon: Icon(Icons.grid_view_outlined),
-              activeIcon: Icon(Icons.grid_view),
-              label: 'Category',
-            ),
-
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart_outlined),
-              activeIcon: Icon(Icons.shopping_cart),
-              label: 'Cart',
-            ),
-
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
+    return AppPopScope(
+      goToMainScreen: false,
+      child: Scaffold(
+          body: screens[selectedIndex],
+      
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: selectedIndex,
+      
+            onTap: (index) {
+              setState(() {
+                selectedIndex = index;
+              });
+            },
+      
+            type: BottomNavigationBarType.fixed,
+      
+            selectedItemColor: Colors.blue,
+            unselectedItemColor: Colors.black,
+      
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
+                label: 'Home',
+              ),
+      
+              BottomNavigationBarItem(
+                icon: Icon(Icons.grid_view_outlined),
+                activeIcon: Icon(Icons.grid_view),
+                label: 'Category',
+              ),
+      
+              BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_cart_outlined),
+                activeIcon: Icon(Icons.shopping_cart),
+                label: 'Cart',
+              ),
+      
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline),
+                activeIcon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
+          ),
         ),
-      );//============
+    );//============
   }
 }

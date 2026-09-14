@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../providers/product_provider.dart';
 import '../providers/cart_provider.dart';
 
@@ -291,10 +292,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
             onPressed: () async {
               final productId = product['id'];
 
+              final authProvider = context.read<AuthProvider>();
+              final userId = authProvider.user!['id'];
+
               await context.read<CartProvider>().addToCart(
-                1, // userId
+                userId,
                 productId,
-                1, // quantity
+                1,
               );
               if (!mounted) return;
 

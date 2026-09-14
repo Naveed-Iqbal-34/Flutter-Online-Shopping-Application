@@ -110,7 +110,31 @@ class _ShopEasyHomeTabState extends State<ShopEasyHomeTab> {
                         color: Colors.white,
                         size: 28,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          barrierColor: Colors.black54,
+                          builder: (context) {
+                            return Center(
+                              child: Container(
+                                margin: const EdgeInsets.all(30),
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  'This is my overlay',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
                   ],
                 ),
