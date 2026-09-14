@@ -1,18 +1,16 @@
-import 'package:database_in_flutter/custom_widgets/text_button.dart';
-import 'package:database_in_flutter/custom_widgets/text_field.dart';
+import 'package:database_in_flutter/widgets/text_button.dart';
+import 'package:database_in_flutter/widgets/text_field.dart';
 import 'package:database_in_flutter/screens/main_screen.dart';
 import 'package:database_in_flutter/screens/singup_screen.dart';
 import 'package:database_in_flutter/ui_helper/ui_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:database_in_flutter/custom_widgets/custom_text.dart';
-import 'package:database_in_flutter/custom_widgets/elevated_button.dart';
+import 'package:database_in_flutter/widgets/custom_text.dart';
+import 'package:database_in_flutter/widgets/elevated_button.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Ensure this points to the exact folder location of your database helper file!
-import 'package:database_in_flutter/database_helper/database_helper.dart';
 
-import 'home_screen.dart';
+import '../providers/auth_provider.dart';
 
 // Ensure this points to the layout shell screen where users land after logging in successfully
 // import 'package:database_in_flutter/screens/main_navigation_shell.dart';
@@ -58,10 +56,14 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     // Fire look up script matching criteria against your local SQLite user table rows
-    final authenticatedUser = await DatabaseHelper.instance.loginUser(
+    final authProvider = context.read<AuthProvider>();
+
+    await authProvider.login(
       inputEmail,
       inputPassword,
     );
+
+    final authenticatedUser = authProvider.user;
 
     if (authenticatedUser != null) {
       // SUCCESS: Access settings profile notes file inside internal device storage
@@ -88,10 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ChangeNotifierProvider(
-              create: (_) => HomeProvider(), // Loads and provisions your product database stream state
-              child: const MainScreen(),
-            ),
+            builder: (context) => const MainScreen()
           ),
         );
 

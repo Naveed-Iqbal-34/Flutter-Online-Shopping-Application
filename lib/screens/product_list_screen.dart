@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../database_helper/database_helper.dart';
+import 'package:provider/provider.dart';
+import '../providers/product_provider.dart';
+import '../providers/cart_provider.dart';
 
 class ProductListScreen extends StatefulWidget {
   final String category;
@@ -16,37 +18,25 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   final List<String> filters = ['All'];
 
-  List<Map<String, dynamic>> products = [];
-
-  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    loadProducts();
-  }
 
-  Future<void> loadProducts() async {
-    final result = await DatabaseHelper.instance.getProductsByCategory(
-      widget.category,
-    );
-
-    if (!mounted) return;
-
-    setState(() {
-      products = result;
-      isLoading = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ProductProvider>().loadProductsByCategory(
+          widget.category,
+        );
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredProducts = selectedFilter == 0
-        ? products
-        : products.where((product) {
-            return product['category'] == filters[selectedFilter];
-          }).toList();
+    final provider = context.watch<ProductProvider>();
 
+    final filteredProducts = provider.products;
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -301,12 +291,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
             onPressed: () async {
               final productId = product['id'];
 
-              await DatabaseHelper.instance.addToCart(
+              await context.read<CartProvider>().addToCart(
                 1, // userId
                 productId,
                 1, // quantity
               );
-
               if (!mounted) return;
 
               ScaffoldMessenger.of(context).showSnackBar(

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'package:database_in_flutter/custom_widgets/text_button.dart';
-import 'package:database_in_flutter/custom_widgets/text_field.dart';
-import 'package:database_in_flutter/custom_widgets/custom_text.dart';
-import 'package:database_in_flutter/custom_widgets/elevated_button.dart';
+import 'package:database_in_flutter/widgets/text_button.dart';
+import 'package:database_in_flutter/widgets/text_field.dart';
+import 'package:database_in_flutter/widgets/custom_text.dart';
+import 'package:database_in_flutter/widgets/elevated_button.dart';
 
-import 'package:database_in_flutter/database_helper/database_helper.dart';
 import 'package:database_in_flutter/ui_helper/ui_helper.dart';
+import 'package:provider/provider.dart';
+import 'package:database_in_flutter/providers/auth_provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -61,7 +62,10 @@ class _SignupScreenState extends State<SignupScreen> {
     // SAVE USER TO SQLITE
     // =========================================
 
-    final result = await DatabaseHelper.instance.registerUser(email, password);
+    final result = await context.read<AuthProvider>().register(
+      email,
+      password,
+    );
 
     if (!mounted) return;
 

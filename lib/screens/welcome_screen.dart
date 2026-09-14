@@ -1,8 +1,8 @@
-import 'package:database_in_flutter/custom_widgets/text_button.dart';
+import 'package:database_in_flutter/widgets/text_button.dart';
 import 'package:database_in_flutter/screens/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:database_in_flutter/custom_widgets/custom_text.dart';
-import 'package:database_in_flutter/custom_widgets/elevated_button.dart';
+import 'package:database_in_flutter/widgets/custom_text.dart';
+import 'package:database_in_flutter/widgets/elevated_button.dart';
 import 'package:database_in_flutter/ui_helper/ui_helper.dart';
 
 class WelcomeScreen extends StatelessWidget {

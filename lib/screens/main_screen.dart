@@ -12,7 +12,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-
   int selectedIndex = 0;
 
   final List<Widget> screens = [
@@ -25,50 +24,48 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: screens[selectedIndex],
+        body: screens[selectedIndex],
 
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedIndex,
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: selectedIndex,
 
-        onTap: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
+          onTap: (index) {
+            setState(() {
+              selectedIndex = index;
+            });
+          },
 
-        type: BottomNavigationBarType.fixed,
+          type: BottomNavigationBarType.fixed,
 
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.black,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.black,
 
-        items: const [
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home),
+              label: 'Home',
+            ),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.grid_view_outlined),
+              activeIcon: Icon(Icons.grid_view),
+              label: 'Category',
+            ),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view_outlined),
-            activeIcon: Icon(Icons.grid_view),
-            label: 'Category',
-          ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart_outlined),
+              activeIcon: Icon(Icons.shopping_cart),
+              label: 'Cart',
+            ),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart_outlined),
-            activeIcon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
-
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-
-        ],
-      ),
-    );
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              activeIcon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+        ),
+      );//============
   }
 }

@@ -244,6 +244,28 @@ class DatabaseHelper {
     return null;
   }
 
+  // ---------------------------------------------------------
+// GET USER
+// ---------------------------------------------------------
+
+  Future<Map<String, dynamic>?> getUser(
+      String username,
+      ) async {
+    final db = await instance.database;
+
+    final result = await db.query(
+      'users',
+      where: 'username = ?',
+      whereArgs: [username],
+    );
+
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+
+    return null;
+  }
+
   // =========================================================
   // PRODUCT METHODS
   // =========================================================

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:database_in_flutter/ui_helper/ui_helper.dart';
-
-import '../database_helper/database_helper.dart';
+import '../providers/auth_provider.dart';
+import '../providers/cart_provider.dart';
 import 'order_success_screen.dart';
 
 class CartScreen extends StatefulWidget {
@@ -12,31 +13,44 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  List<Map<String, dynamic>> cartItems = [];
-
-  bool isLoading = true;
-
-  final int userId = 1;
+  int get userId {
+    return context.read<AuthProvider>().user!['id'];
+  }
 
   @override
   void initState() {
     super.initState();
-    loadCart();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = context.read<AuthProvider>();
+      final userId = authProvider.user!['id'];
+
+      context.read<CartProvider>().loadCart(userId);
+    });
   }
 
+  // ===========================================
+  // PLACE ORDER
+  // ===========================================
+
   void _placeOrder() {
+    final provider = context.read<CartProvider>();
+    final cartItems = provider.cartItems;
+
     if (cartItems.isEmpty) return;
 
     int itemCount = 0;
     double totalAmount = 0;
 
     for (final item in cartItems) {
-      final int quantity = item['quantity'] as int;
+      final int quantity = (item['quantity'] as num).toInt();
       final double price = (item['price'] as num).toDouble();
 
       itemCount += quantity;
       totalAmount += price * quantity;
     }
+
+    totalAmount += shipping;
 
     Navigator.push(
       context,
@@ -51,116 +65,119 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Future<void> loadCart() async {
-    try {
-      final items = await DatabaseHelper.instance.getCartItems(1);
+  // ===========================================
+  // SUBTOTAL
+  // ===========================================
 
-      if (!mounted) return;
-
-      setState(() {
-        cartItems = items;
-        isLoading = false;
-      });
-    } catch (e) {
-      print('ERROR LOADING CART: $e');
-
-      if (!mounted) return;
-
-      setState(() {
-        cartItems = [];
-        isLoading = false;
-      });
-    }
-  }
-
-  // Calculate subtotal
   double get subtotal {
+    final cartItems = context.read<CartProvider>().cartItems;
+
     double total = 0;
 
-    for (var item in cartItems) {
-      total += item['price'] * item['quantity'];
+    for (final item in cartItems) {
+      final double price = (item['price'] as num).toDouble();
+      final int quantity = (item['quantity'] as num).toInt();
+
+      total += price * quantity;
     }
 
     return total;
   }
 
-  // Shipping
+  // ===========================================
+  // SHIPPING
+  // ===========================================
+
   double get shipping {
+    final cartItems = context.read<CartProvider>().cartItems;
+
     return cartItems.isEmpty ? 0 : 200;
   }
 
-  // Final total
+  // ===========================================
+  // FINAL TOTAL
+  // ===========================================
+
   double get total {
     return subtotal + shipping;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
+    return Consumer<CartProvider>(
+      builder: (context, cartProvider, child) {
+        final cartItems = cartProvider.cartItems;
 
-      // =========================================
-      // APP BAR
-      // =========================================
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 2,
+        return Scaffold(
+          backgroundColor: Colors.white,
 
-        centerTitle: true,
+          // =========================================
+          // APP BAR
+          // =========================================
 
-        leading: const SizedBox(),
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 2,
+            centerTitle: true,
 
-        title: const Text(
-          'My Cart',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+            leading: const SizedBox(),
 
-        actions: [
-          IconButton(
-            onPressed: () {
-              _clearCart();
-            },
-
-            icon: const Icon(
-              Icons.delete_outline,
-              color: Colors.black,
-              size: 30,
+            title: const Text(
+              'My Cart',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
 
-          const SizedBox(width: 8),
-        ],
-      ),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  _clearCart();
+                },
 
-      // =========================================
-      // BODY
-      // =========================================
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Expanded(
-                  child: cartItems.isEmpty
-                      ? _emptyCart()
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 23,
-                            vertical: 10,
-                          ),
-                          itemCount: cartItems.length,
-                          itemBuilder: (context, index) {
-                            return _cartItem(index);
-                          },
-                        ),
+                icon: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.black,
+                  size: 30,
                 ),
+              ),
 
-                if (cartItems.isNotEmpty) _bottomSummary(),
-              ],
-            ),
+              const SizedBox(width: 8),
+            ],
+          ),
+
+          // =========================================
+          // BODY
+          // =========================================
+
+          body: cartProvider.isLoading
+              ? const Center(
+            child: CircularProgressIndicator(),
+          )
+              : Column(
+            children: [
+              Expanded(
+                child: cartItems.isEmpty
+                    ? _emptyCart()
+                    : ListView.builder(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 23,
+                    vertical: 10,
+                  ),
+                  itemCount: cartItems.length,
+                  itemBuilder: (context, index) {
+                    return _cartItem(index);
+                  },
+                ),
+              ),
+
+              if (cartItems.isNotEmpty) _bottomSummary(),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -169,7 +186,11 @@ class _CartScreenState extends State<CartScreen> {
   // ===========================================
 
   Widget _cartItem(int index) {
+    final cartItems = context.read<CartProvider>().cartItems;
     final item = cartItems[index];
+
+    final double price = (item['price'] as num).toDouble();
+    final int quantity = (item['quantity'] as num).toInt();
 
     return Container(
       height: 112,
@@ -197,6 +218,7 @@ class _CartScreenState extends State<CartScreen> {
           // =================================
           // PRODUCT IMAGE
           // =================================
+
           Container(
             width: 90,
             height: 90,
@@ -212,6 +234,7 @@ class _CartScreenState extends State<CartScreen> {
               child: Image.asset(
                 item['imagePath'],
                 fit: BoxFit.contain,
+
                 errorBuilder: (context, error, stackTrace) {
                   return const Icon(
                     Icons.image_not_supported_outlined,
@@ -228,6 +251,7 @@ class _CartScreenState extends State<CartScreen> {
           // =================================
           // PRODUCT INFORMATION
           // =================================
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,7 +259,6 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 const SizedBox(height: 3),
 
-                // Product name
                 Text(
                   item['name'],
 
@@ -252,9 +275,8 @@ class _CartScreenState extends State<CartScreen> {
 
                 const SizedBox(height: 3),
 
-                // Price
                 Text(
-                  'Rs. ${item['price'].toStringAsFixed(0)}',
+                  'Rs. ${price.toStringAsFixed(0)}',
 
                   style: TextStyle(
                     fontSize: 14,
@@ -265,29 +287,38 @@ class _CartScreenState extends State<CartScreen> {
 
                 const Spacer(),
 
-                // Quantity selector
+                // =================================
+                // QUANTITY SELECTOR
+                // =================================
+
                 Container(
                   height: 34,
                   width: 112,
 
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade400),
+                    border: Border.all(
+                      color: Colors.grey.shade400,
+                    ),
 
                     borderRadius: BorderRadius.circular(10),
                   ),
 
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceAround,
 
                     children: [
                       // Minus
+
                       InkWell(
                         onTap: () {
                           _decreaseQuantity(index);
                         },
 
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 7),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 7,
+                          ),
 
                           child: Text(
                             '-',
@@ -300,8 +331,9 @@ class _CartScreenState extends State<CartScreen> {
                       ),
 
                       // Quantity
+
                       Text(
-                        '${item['quantity']}',
+                        '$quantity',
 
                         style: const TextStyle(
                           fontSize: 16,
@@ -310,13 +342,16 @@ class _CartScreenState extends State<CartScreen> {
                       ),
 
                       // Plus
+
                       InkWell(
                         onTap: () {
                           _increaseQuantity(index);
                         },
 
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 7),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 7,
+                          ),
 
                           child: Text(
                             '+',
@@ -337,6 +372,7 @@ class _CartScreenState extends State<CartScreen> {
           // =================================
           // DELETE BUTTON
           // =================================
+
           const SizedBox(width: 10),
 
           IconButton(
@@ -344,7 +380,11 @@ class _CartScreenState extends State<CartScreen> {
               _removeItem(index);
             },
 
-            icon: const Icon(Icons.delete_outline, color: Colors.red, size: 32),
+            icon: const Icon(
+              Icons.delete_outline,
+              color: Colors.red,
+              size: 32,
+            ),
           ),
         ],
       ),
@@ -357,7 +397,12 @@ class _CartScreenState extends State<CartScreen> {
 
   Widget _bottomSummary() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 15),
+      padding: const EdgeInsets.fromLTRB(
+        24,
+        12,
+        24,
+        15,
+      ),
 
       decoration: BoxDecoration(
         color: Colors.white,
@@ -374,8 +419,10 @@ class _CartScreenState extends State<CartScreen> {
       child: Column(
         children: [
           // Subtotal
+
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+            MainAxisAlignment.spaceBetween,
 
             children: [
               Text(
@@ -403,8 +450,10 @@ class _CartScreenState extends State<CartScreen> {
           const SizedBox(height: 8),
 
           // Shipping
+
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+            MainAxisAlignment.spaceBetween,
 
             children: [
               Text(
@@ -436,8 +485,10 @@ class _CartScreenState extends State<CartScreen> {
           const SizedBox(height: 7),
 
           // Total
+
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+            MainAxisAlignment.spaceBetween,
 
             children: [
               const Text(
@@ -467,64 +518,47 @@ class _CartScreenState extends State<CartScreen> {
           // =====================================
           // CHECKOUT BUTTON
           // =====================================
+
           SizedBox(
             width: double.infinity,
             height: 52,
 
             child: ElevatedButton(
-              onPressed: () {
-                if (cartItems.isEmpty) return;
-
-                // Calculate item count
-                int itemCount = 0;
-
-                // Calculate total price
-                double totalAmount = 0;
-
-                for (final item in cartItems) {
-                  final int quantity = (item['quantity'] as num).toInt();
-                  final double price = (item['price'] as num).toDouble();
-
-                  itemCount += quantity;
-                  totalAmount += price * quantity;
-                }
-
-                // Add shipping
-                totalAmount += shipping;
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => OrderSuccessScreen(
-                      orderId: '#${DateTime.now().millisecondsSinceEpoch}',
-                      itemCount: itemCount,
-                      totalAmount: totalAmount,
-                      estimatedDelivery: '2026.9.18',
-                    ),
-                  ),
-                );
-              },
+              onPressed: _placeOrder,
 
               style: ElevatedButton.styleFrom(
-                backgroundColor: ColorsUsed.electricBlue,
+                backgroundColor:
+                ColorsUsed.electricBlue,
+
                 foregroundColor: Colors.white,
+
                 elevation: 0,
+
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius:
+                  BorderRadius.circular(10),
                 ),
               ),
 
               child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment:
+                MainAxisAlignment.center,
+
                 children: [
                   Text(
                     'Proceed to Checkout',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
 
                   SizedBox(width: 15),
 
-                  Icon(Icons.arrow_forward_ios, size: 20),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 20,
+                  ),
                 ],
               ),
             ),
@@ -539,16 +573,17 @@ class _CartScreenState extends State<CartScreen> {
   // ===========================================
 
   Future<void> _increaseQuantity(int index) async {
-    final item = cartItems[index];
+    final provider = context.read<CartProvider>();
+    final item = provider.cartItems[index];
 
-    final newQuantity = item['quantity'] + 1;
+    final int currentQuantity =
+    (item['quantity'] as num).toInt();
 
-    await DatabaseHelper.instance.updateCartQuantity(
+    await provider.increaseQuantity(
+      userId,
       item['cartId'],
-      newQuantity,
+      currentQuantity,
     );
-
-    await loadCart();
   }
 
   // ===========================================
@@ -556,18 +591,17 @@ class _CartScreenState extends State<CartScreen> {
   // ===========================================
 
   Future<void> _decreaseQuantity(int index) async {
-    final item = cartItems[index];
+    final provider = context.read<CartProvider>();
+    final item = provider.cartItems[index];
 
-    final currentQuantity = item['quantity'];
+    final int currentQuantity =
+    (item['quantity'] as num).toInt();
 
-    if (currentQuantity > 1) {
-      await DatabaseHelper.instance.updateCartQuantity(
-        item['cartId'],
-        currentQuantity - 1,
-      );
-
-      await loadCart();
-    }
+    await provider.decreaseQuantity(
+      userId,
+      item['cartId'],
+      currentQuantity,
+    );
   }
 
   // ===========================================
@@ -575,13 +609,13 @@ class _CartScreenState extends State<CartScreen> {
   // ===========================================
 
   Future<void> _removeItem(int index) async {
-    final item = cartItems[index];
+    final provider = context.read<CartProvider>();
+    final item = provider.cartItems[index];
 
-    final cartId = item['cartId'];
-
-    await DatabaseHelper.instance.deleteCartItem(cartId);
-
-    await loadCart();
+    await provider.deleteItem(
+      userId,
+      item['cartId'],
+    );
   }
 
   // ===========================================
@@ -589,13 +623,13 @@ class _CartScreenState extends State<CartScreen> {
   // ===========================================
 
   Future<void> _clearCart() async {
-    if (cartItems.isEmpty) {
+    final provider = context.read<CartProvider>();
+
+    if (provider.cartItems.isEmpty) {
       return;
     }
 
-    await DatabaseHelper.instance.clearCart(userId);
-
-    await loadCart();
+    await provider.clearCart(userId);
   }
 
   // ===========================================
@@ -605,17 +639,25 @@ class _CartScreenState extends State<CartScreen> {
   Widget _emptyCart() {
     return const Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment:
+        MainAxisAlignment.center,
 
         children: [
-          Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey),
+          Icon(
+            Icons.shopping_cart_outlined,
+            size: 80,
+            color: Colors.grey,
+          ),
 
           SizedBox(height: 15),
 
           Text(
             'Your cart is empty',
 
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),

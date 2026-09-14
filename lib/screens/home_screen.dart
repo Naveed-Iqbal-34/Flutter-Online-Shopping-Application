@@ -1,26 +1,9 @@
-import 'package:database_in_flutter/screens/product_details.dart';
+import 'package:database_in_flutter/screens/product_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// Ensure these point to the exact paths where your database helper lives!
-import '../database_helper/database_helper.dart';
 import 'package:database_in_flutter/ui_helper/ui_helper.dart';
-
-// =========================================================================
-// 1. GLOBAL STATE MANAGER (Add this class to manage dynamic product states)
-// =========================================================================
-class HomeProvider extends ChangeNotifier {
-  List<Map<String, dynamic>> _allProducts = [];
-
-  List<Map<String, dynamic>> get products => _allProducts;
-
-  // Pulls the items directly out of your updated SQLite database
-  Future<void> fetchProductsFromDB(String query) async {
-    _allProducts = await DatabaseHelper.instance.searchProducts(query);
-    notifyListeners();
-  }
-}
-
+import '../providers/product_provider.dart';
 // =========================================================================
 // 2. MAIN HOME VIEW INTERFACE
 // =========================================================================
@@ -37,13 +20,10 @@ class _ShopEasyHomeTabState extends State<ShopEasyHomeTab> {
   @override
   void initState() {
     super.initState();
-    // Automatically query the SQLite storage layer right when the page boots up
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        Provider.of<HomeProvider>(
-          context,
-          listen: false,
-        ).fetchProductsFromDB("");
+        context.read<ProductProvider>().loadProducts();
       }
     });
   }
@@ -85,7 +65,7 @@ class _ShopEasyHomeTabState extends State<ShopEasyHomeTab> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<HomeProvider>(context);
+    final provider = Provider.of<ProductProvider>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFFDFDFD),
@@ -139,10 +119,7 @@ class _ShopEasyHomeTabState extends State<ShopEasyHomeTab> {
                 TextField(
                   controller: _searchController,
                   onChanged: (value) {
-                    Provider.of<HomeProvider>(
-                      context,
-                      listen: false,
-                    ).fetchProductsFromDB(value);
+                    context.read<ProductProvider>().searchProducts(value);
                   },
                   decoration: InputDecoration(
                     hintText: 'Search for products...',

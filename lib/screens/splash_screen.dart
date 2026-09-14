@@ -1,13 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'welcome_screen.dart';
 import 'main_screen.dart';
 import 'package:provider/provider.dart';
-import 'home_screen.dart';
-import 'main_screen.dart';
-
+import '../providers/auth_provider.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -25,36 +22,54 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkRememberMe() async {
-
-    // Wait 5 seconds for splash screen
     await Future.delayed(const Duration(seconds: 5));
 
     if (!mounted) return;
 
-    // Get saved login information
     final prefs = await SharedPreferences.getInstance();
 
     final rememberMe =
         prefs.getBool('remember_me_status') ?? false;
 
-    if (!mounted) return;
-
-    if (rememberMe) {
-
-      // Remember Me was checked
+    if (!rememberMe) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider(
-            create: (_) => HomeProvider(),
-            child: const MainScreen(),
-          ),
+          builder: (context) => const WelcomeScreen(),
         ),
       );
+      return;
+    }
 
+    final savedEmail =
+    prefs.getString('cached_user_email');
+
+    if (savedEmail == null || savedEmail.isEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const WelcomeScreen(),
+        ),
+      );
+      return;
+    }
+
+    final restored = await context
+        .read<AuthProvider>()
+        .restoreUser(savedEmail);
+
+    if (!mounted) return;
+
+    if (restored) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MainScreen(),
+        ),
+      );
     } else {
+      await prefs.setBool('remember_me_status', false);
 
-      // Remember Me was not checked
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

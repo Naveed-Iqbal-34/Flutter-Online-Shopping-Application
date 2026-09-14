@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:database_in_flutter/ui_helper/ui_helper.dart';
-
-import '../database_helper/database_helper.dart';
+import '../providers/cart_provider.dart';
+import 'package:provider/provider.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -471,7 +471,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                     final productId = widget.product['id'];
 
-                    await DatabaseHelper.instance.addToCart(
+                    await context.read<CartProvider>().addToCart(
                       1, // userId
                       productId,
                       quantity,
